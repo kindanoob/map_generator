@@ -135,16 +135,16 @@ int Game_map::width() {
 }
 
 
-std::vector<Room *> Game_map::generate_rooms() {
-    std::vector<Room *> rooms;
+std::vector<std::unique_ptr<Room>> Game_map::generate_rooms() {
+    std::vector<std::unique_ptr<Room>> rooms;
     std::vector<std::vector<int> > visited(height(), std::vector<int>(width(), 0));
     for (int i = 0; i < height(); ++i) {
         for (int j = 0; j < width(); ++j) {
             if (!visited[i][j] && (char_map_[i][j] == '0')) {
                 std::vector<Node *> connected_component;
                 dfs(i, j, visited, connected_component);
-                Room  *new_room = new Room(connected_component, this);
-                rooms.push_back(new_room);
+                std::unique_ptr<Room> new_room(new Room(connected_component, this));
+                rooms.push_back(std::move(new_room));
             }
         }
     }
@@ -152,7 +152,7 @@ std::vector<Room *> Game_map::generate_rooms() {
 }
 
 
-int Game_map::count_connected_componenets(std::vector<Room *>& rooms) {
+int Game_map::count_connected_componenets(std::vector<std::unique_ptr<Room>>& rooms) {
     int cnt = 0;
     std::vector<std::vector<int> > visited(height(), std::vector<int>(width(), 0));
     std::vector<std::pair<int, int> > connected_component;
@@ -170,7 +170,7 @@ int Game_map::count_connected_componenets(std::vector<Room *>& rooms) {
 
 
 std::vector<std::vector<std::pair<int, int> > > Game_map::group_tiles_into_connected_componenets(
-                                                            std::vector<Room *>& rooms) {
+                                                            std::vector<std::unique_ptr<Room>>& rooms) {
     std::vector<std::vector<std::pair<int, int> > > res;
     std::vector<std::vector<int> > visited(height(), std::vector<int>(width(), 0));
     for (int i = 0; i < height(); ++i) {
@@ -186,7 +186,7 @@ std::vector<std::vector<std::pair<int, int> > > Game_map::group_tiles_into_conne
 }
 
 
-void Game_map::remove_connected_components(std::vector<Room *>& rooms) {
+void Game_map::remove_connected_components(std::vector<std::unique_ptr<Room>>& rooms) {
     std::vector<std::vector<std::pair<int, int> > > connected_components =
         group_tiles_into_connected_componenets(rooms);
     std::sort(connected_components.begin(), connected_components.end(),
@@ -238,12 +238,12 @@ void Game_map::dfs_simple(int i, int j, std::vector<std::vector<int> >& visited,
 }
 
 
-void Game_map::dfs_room(Room *room, std::vector<Room *>& rooms, std::vector<Room *>& visited,
-              std::vector<Room *>& connected_component) {
+void Game_map::dfs_room(std::unique_ptr<Room>room, std::vector<std::unique_ptr<Room>>& rooms, 
+    std::vector<std::unique_ptr<Room>>& visited, std::vector<std::unique_ptr<Room>>& connected_component) {
     if (std::find(visited.begin(), visited.end(), room) != visited.end()) {
         return;
     }
-    visited.push_back(room);
+    visited.push_back(std::move(room));
     connected_component.push_back(room);
     for (auto& r: room->connected_rooms_) {
         dfs_room(r, rooms, visited, connected_component);
@@ -251,12 +251,12 @@ void Game_map::dfs_room(Room *room, std::vector<Room *>& rooms, std::vector<Room
 }
 
 
-std::vector<std::vector<Room *> > Game_map::group_rooms_into_connected_components(
-                                std::vector<Room *>& rooms) {
-    std::vector<std::vector<Room *> > res;
-    std::vector<Room *> visited;
+std::vector<std::vector<std::unique_ptr<Room>> > Game_map::group_rooms_into_connected_components(
+                                std::vector<std::unique_ptr<Room>>& rooms) {
+    std::vector<std::vector<std::unique_ptr<Room>> > res;
+    std::vector<std::unique_ptr<Room>> visited;
     for (size_t i = 0; i < rooms.size(); ++i) {
-        std::vector<Room *> connected_component;
+        std::vector<std::unique_ptr<Room>> connected_component;
         dfs_room(rooms[i], rooms, visited, connected_component);
         if (!connected_component.empty()) {
             res.push_back(connected_component);
@@ -266,8 +266,8 @@ std::vector<std::vector<Room *> > Game_map::group_rooms_into_connected_component
 }
 
 
-void Game_map::connect_main_room_to_other_rooms(Room *main_room, std::vector<Room *>& rooms,
-                                      std::vector<std::vector<Room *> >& rooms_connected_components) {
+void Game_map::connect_main_room_to_other_rooms(std::unique_ptr<Room>main_room, std::vector<std::unique_ptr<Room>>& rooms,
+                                      std::vector<std::vector<std::unique_ptr<Room>> >& rooms_connected_components) {
     for (auto& v: rooms_connected_components) {
         if (std::find(v.begin(), v.end(), main_room) == v.end()) {
             main_room->connect_room(main_room->get_closest_room(v));
@@ -278,10 +278,10 @@ void Game_map::connect_main_room_to_other_rooms(Room *main_room, std::vector<Roo
 
 
 void Game_map::create_passageways() {
-    std::vector<std::vector<Room *> > rooms_connected_components =
+    std::vector<std::vector<std::unique_ptr<Room>> > rooms_connected_components =
         group_rooms_into_connected_components(room_vector_);
-    double offset_x = OFFSET_X;
-    double offset_y = OFFSET_Y;
+    double offset_x = kOffsetX;
+    double offset_y = kOffsetY;
     for (size_t i = 0; i < room_vector_.size(); ++i) {
         for (auto& r: room_vector_[i]->connected_rooms_) {
             if (room_vector_[i] == r) {
@@ -304,11 +304,11 @@ void Game_map::create_passageways() {
             double a = 0;
             double b = 0;
             double c = 0;
-            if (fabs(x0 - x1) < EPSILON) {//if the line is vertical, e.g. x = x0
+            if (fabs(x0 - x1) < kEpsilon) {//if the line is vertical, e.g. x = x0
                 a = 1;
                 b = 0;
                 c = -x0;
-            } else if (fabs(y0 - y1) < EPSILON) {//if the line is vertical, e.g. x = x0
+            } else if (fabs(y0 - y1) < kEpsilon) {//if the line is vertical, e.g. x = x0
                 a = 0;
                 b = 1;
                 c = -y0;
@@ -325,7 +325,7 @@ void Game_map::create_passageways() {
                     double x = j * tile_width_in_pixels_ + tile_width_in_pixels_ / 2 + offset_x;
                     double y = i * tile_width_in_pixels_ + tile_width_in_pixels_ / 2 + offset_y;
                     double dist = Util::dist_from_point_to_line(x, y, a, b, c);
-                    if (dist < tile_width_in_pixels_ * SQRT_2) {
+                    if (dist < tile_width_in_pixels_ * kSqrt2) {
                         double dist_to_first_end = Util::dist_squared_from_point_to_point(x, y, x0, y0);
                         double dist_to_second_end = Util::dist_squared_from_point_to_point(x, y, x1, y1);
                         double dist_first_to_second = Util::dist_squared_from_point_to_point(x0, y0, x1, y1);
@@ -358,13 +358,13 @@ void Game_map::connect_closest_rooms() {
 }
 
 
-void Game_map::connect_rooms(std::vector<Room *>& rooms) {
+void Game_map::connect_rooms(std::vector<std::unique_ptr<Room>>& rooms) {
     connect_closest_rooms();
     sort(room_vector_.begin(), room_vector_.end(), Room::cmp_rooms_by_size);
     if (!room_vector_.empty()) {
         room_vector_[0]->is_main_room_ = true;
     }
-    std::vector<std::vector<Room *> > rooms_connected_components =
+    std::vector<std::vector<std::unique_ptr<Room>> > rooms_connected_components =
         group_rooms_into_connected_components(room_vector_);
     if (!room_vector_.empty()) {
         connect_main_room_to_other_rooms(room_vector_[0], room_vector_, rooms_connected_components);
@@ -375,12 +375,12 @@ void Game_map::connect_rooms(std::vector<Room *>& rooms) {
 
 void Game_map::process_map(sf::RenderWindow& window) {
     randomize_map(map_fill_percentage_);
-    smooth_map(NUM_ITERATIONS_SMOOTH);
+    smooth_map(kNumIterationsSmooth);
     room_vector_ = generate_rooms();    
     connect_rooms(room_vector_);
 
     //draw_room_connections(window);
-    smooth_map(NUM_ITERATIONS_SMOOTH);
+    smooth_map(kNumIterationsSmooth);
     create_passageways();
     remove_connected_components(room_vector_);
 }
@@ -388,7 +388,7 @@ void Game_map::process_map(sf::RenderWindow& window) {
 
 void Game_map::draw_room_connections(sf::RenderWindow& window) {
     for (size_t i = 0; i < room_vector_.size(); ++i) {
-        Room *curr = room_vector_[i];
+        std::unique_ptr<Room>curr = room_vector_[i];
         for (auto& r: curr->connected_rooms_) {
             if (curr == r) {
                 continue;
@@ -396,8 +396,8 @@ void Game_map::draw_room_connections(sf::RenderWindow& window) {
             sf::VertexArray line(sf::LinesStrip, 2);
             int rand_index_0 = 0;
             int rand_index_1 = 0;
-            line[0].position = sf::Vector2f(curr->node_vector_[rand_index_0]->x_ * TILE_WIDTH_IN_PIXELS + OFFSET_X, curr->node_vector_[rand_index_0]->y_ * TILE_WIDTH_IN_PIXELS + OFFSET_Y);
-            line[1].position = sf::Vector2f(r->node_vector_[rand_index_1]->x_ * TILE_WIDTH_IN_PIXELS + OFFSET_X, r->node_vector_[rand_index_1]->y_ * TILE_WIDTH_IN_PIXELS + OFFSET_Y);
+            line[0].position = sf::Vector2f(curr->node_vector_[rand_index_0]->x_ * kTileWidthInPixels + kOffsetX, curr->node_vector_[rand_index_0]->y_ * kTileWidthInPixels + kOffsetY);
+            line[1].position = sf::Vector2f(r->node_vector_[rand_index_1]->x_ * kTileWidthInPixels + kOffsetX, r->node_vector_[rand_index_1]->y_ * kTileWidthInPixels + kOffsetY);
             line[0].color = sf::Color(255, 0, 0);
             line[1].color = sf::Color(255, 0, 0);
             window.draw(line);
@@ -430,91 +430,4 @@ int Game_map::count_neighbors_dist(int i, int j, char c, int dist) {
         }
     }
     return cnt;
-}
-
-void Game_map::process_map2() {
-    std::vector<std::vector<char> > dupe_char_map(height(), std::vector<char>(width(), '1'));
-    randomize_map(MAP_FILL_PERCENTAGE);
-    int cutoff_one = 1;
-    int cutoff_two = 0;
-    for (int k = 0; k < cutoff_one; ++k) {
-        for (size_t i = 1; i < char_map_.size() - 1; ++i) {
-            for (size_t j = 1; j < char_map_[0].size() - 1; ++j) {
-                char curr = char_map_[i][j];
-                //int cnt = count_neighbor_walls(i, j);
-                //int cnt = count_neighbors_dist(i, j, '1', 1);
-                //int cnt_dist = count_neighbors_dist(i, j, '1', 2);
-                //bool condition = (cnt >= 6) || (cnt_dist <= 1);
-                //bool condition_birth = (cnt >= 5);
-                //bool condition_survival = (cnt >= 4);
-                int cnt = count_neighbor_walls(i, j);
-                if (curr == '0') {//if the cell is dead
-                    if (std::find(BIRTH_VALUES.begin(), BIRTH_VALUES.end(), cnt) !=
-                       BIRTH_VALUES.end()) {
-                        char_map_[i][j] = '1';
-                    }
-                }
-                else {//if the cell is alive
-                    if (std::find(SURVIVE_VALUES.begin(), SURVIVE_VALUES.end(), cnt) ==
-                            SURVIVE_VALUES.end()) {
-                        char_map_[i][j] = '0';
-                    }
-                }
-                /*
-                if (curr == '0') {//if the cell is dead
-                    //if (std::find(BIRTH_VALUES.begin(), BIRTH_VALUES.end(), cnt) !=
-                       //BIRTH_VALUES.end()) {
-                    if (condition) {
-                        dupe_char_map[i][j] = '1';
-                    }
-                    else {
-                        dupe_char_map[i][j] = '0';
-                    }
-                }
-                else {//if the cell is alive
-                    //if (std::find(SURVIVE_VALUES.begin(), SURVIVE_VALUES.end(), cnt) ==
-                            //SURVIVE_VALUES.end()) {
-                    if (true) {
-                    //if (cnt >= 5) {
-                        dupe_char_map[i][j] = '1';
-                    }
-                    else {
-                        dupe_char_map[i][j] = '0';
-                    }
-                }
-                */
-            }
-        }
-        for (int i = 0; i < height(); ++i) {
-            for (int j = 0; j < width(); ++j) {
-                char_map_[i][j] = dupe_char_map[i][j];
-            }
-        }
-    }
-    ///second stage
-    for (int k = 0; k < cutoff_two; ++k) {
-        for (size_t i = 1; i < char_map_.size() - 1; ++i) {
-            for (size_t j = 1; j < char_map_[0].size() - 1; ++j) {
-                int cnt = count_neighbors_dist(i, j, '1', 1);
-                bool condition = (cnt >= 5);
-                //if (curr == '0') {
-                if (true) {
-                    if (condition) {
-                        dupe_char_map[i][j] = '1';
-                    }
-                    else {
-                        dupe_char_map[i][j] = '0';
-                    }
-                }
-                else {
-                    dupe_char_map[i][j] = char_map_[i][j];
-                }
-            }
-        }
-        for (int i = 0; i < height(); ++i) {
-            for (int j = 0; j < width(); ++j) {
-                char_map_[i][j] = dupe_char_map[i][j];
-            }
-        }
-    }
 }
