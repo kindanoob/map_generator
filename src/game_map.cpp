@@ -135,15 +135,15 @@ int Game_map::width() {
 }
 
 
-std::vector<std::unique_ptr<Room>> Game_map::generate_rooms() {
-    std::vector<std::unique_ptr<Room>> rooms;
+std::vector<Room *> Game_map::generate_rooms() {
+    std::vector<Room *> rooms;
     std::vector<std::vector<int> > visited(height(), std::vector<int>(width(), 0));
     for (int i = 0; i < height(); ++i) {
         for (int j = 0; j < width(); ++j) {
             if (!visited[i][j] && (char_map_[i][j] == '0')) {
                 std::vector<Node *> connected_component;
                 dfs(i, j, visited, connected_component);
-                std::unique_ptr<Room> new_room(new Room(connected_component, this));
+                Room *new_room(new Room(connected_component, this));
                 rooms.push_back(std::move(new_room));
             }
         }
@@ -152,7 +152,7 @@ std::vector<std::unique_ptr<Room>> Game_map::generate_rooms() {
 }
 
 
-int Game_map::count_connected_componenets(std::vector<std::unique_ptr<Room>>& rooms) {
+int Game_map::count_connected_componenets(std::vector<Room *>& rooms) {
     int cnt = 0;
     std::vector<std::vector<int> > visited(height(), std::vector<int>(width(), 0));
     std::vector<std::pair<int, int> > connected_component;
@@ -170,7 +170,7 @@ int Game_map::count_connected_componenets(std::vector<std::unique_ptr<Room>>& ro
 
 
 std::vector<std::vector<std::pair<int, int> > > Game_map::group_tiles_into_connected_componenets(
-                                                            std::vector<std::unique_ptr<Room>>& rooms) {
+                                                            std::vector<Room *>& rooms) {
     std::vector<std::vector<std::pair<int, int> > > res;
     std::vector<std::vector<int> > visited(height(), std::vector<int>(width(), 0));
     for (int i = 0; i < height(); ++i) {
@@ -186,7 +186,7 @@ std::vector<std::vector<std::pair<int, int> > > Game_map::group_tiles_into_conne
 }
 
 
-void Game_map::remove_connected_components(std::vector<std::unique_ptr<Room>>& rooms) {
+void Game_map::remove_connected_components(std::vector<Room *>& rooms) {
     std::vector<std::vector<std::pair<int, int> > > connected_components =
         group_tiles_into_connected_componenets(rooms);
     std::sort(connected_components.begin(), connected_components.end(),
@@ -238,8 +238,9 @@ void Game_map::dfs_simple(int i, int j, std::vector<std::vector<int> >& visited,
 }
 
 
-void Game_map::dfs_room(std::unique_ptr<Room>room, std::vector<std::unique_ptr<Room>>& rooms, 
-    std::vector<std::unique_ptr<Room>>& visited, std::vector<std::unique_ptr<Room>>& connected_component) {
+void Game_map::dfs_room(Room *room, std::vector<Room *>& rooms, 
+    std::vector<Room *>& visited, std::vector<Room *>& connected_component) {
+
     if (std::find(visited.begin(), visited.end(), room) != visited.end()) {
         return;
     }
@@ -251,12 +252,12 @@ void Game_map::dfs_room(std::unique_ptr<Room>room, std::vector<std::unique_ptr<R
 }
 
 
-std::vector<std::vector<std::unique_ptr<Room>> > Game_map::group_rooms_into_connected_components(
-                                std::vector<std::unique_ptr<Room>>& rooms) {
-    std::vector<std::vector<std::unique_ptr<Room>> > res;
-    std::vector<std::unique_ptr<Room>> visited;
+std::vector<std::vector<Room *> > Game_map::group_rooms_into_connected_components(
+                                std::vector<Room *>& rooms) {
+    std::vector<std::vector<Room *> > res;
+    std::vector<Room *> visited;
     for (size_t i = 0; i < rooms.size(); ++i) {
-        std::vector<std::unique_ptr<Room>> connected_component;
+        std::vector<Room *> connected_component;
         dfs_room(rooms[i], rooms, visited, connected_component);
         if (!connected_component.empty()) {
             res.push_back(connected_component);
@@ -266,8 +267,8 @@ std::vector<std::vector<std::unique_ptr<Room>> > Game_map::group_rooms_into_conn
 }
 
 
-void Game_map::connect_main_room_to_other_rooms(std::unique_ptr<Room>main_room, std::vector<std::unique_ptr<Room>>& rooms,
-                                      std::vector<std::vector<std::unique_ptr<Room>> >& rooms_connected_components) {
+void Game_map::connect_main_room_to_other_rooms(Room *main_room, std::vector<Room *>& rooms,
+                                      std::vector<std::vector<Room *> >& rooms_connected_components) {
     for (auto& v: rooms_connected_components) {
         if (std::find(v.begin(), v.end(), main_room) == v.end()) {
             main_room->connect_room(main_room->get_closest_room(v));
@@ -278,7 +279,7 @@ void Game_map::connect_main_room_to_other_rooms(std::unique_ptr<Room>main_room, 
 
 
 void Game_map::create_passageways() {
-    std::vector<std::vector<std::unique_ptr<Room>> > rooms_connected_components =
+    std::vector<std::vector<Room *>> rooms_connected_components =
         group_rooms_into_connected_components(room_vector_);
     double offset_x = kOffsetX;
     double offset_y = kOffsetY;
@@ -358,13 +359,13 @@ void Game_map::connect_closest_rooms() {
 }
 
 
-void Game_map::connect_rooms(std::vector<std::unique_ptr<Room>>& rooms) {
+void Game_map::connect_rooms(std::vector<Room *>& rooms) {
     connect_closest_rooms();
     sort(room_vector_.begin(), room_vector_.end(), Room::cmp_rooms_by_size);
     if (!room_vector_.empty()) {
         room_vector_[0]->is_main_room_ = true;
     }
-    std::vector<std::vector<std::unique_ptr<Room>> > rooms_connected_components =
+    std::vector<std::vector<Room *> > rooms_connected_components =
         group_rooms_into_connected_components(room_vector_);
     if (!room_vector_.empty()) {
         connect_main_room_to_other_rooms(room_vector_[0], room_vector_, rooms_connected_components);
@@ -388,7 +389,7 @@ void Game_map::process_map(sf::RenderWindow& window) {
 
 void Game_map::draw_room_connections(sf::RenderWindow& window) {
     for (size_t i = 0; i < room_vector_.size(); ++i) {
-        std::unique_ptr<Room>curr = room_vector_[i];
+        Room *curr = room_vector_[i];
         for (auto& r: curr->connected_rooms_) {
             if (curr == r) {
                 continue;
