@@ -10,7 +10,7 @@ class Game_map;
 
 class Node {
 public:
-    Node(int x, int y): x_(x), y_(y){}
+    Node(int x, int y): x_(x), y_(y) {}
     int x_;
     int y_;
 };

@@ -20,7 +20,7 @@ namespace Util {
     }
 
     bool cmp_tile_connected_components_by_size_descending (
-                std::vector<std::pair<int, int> >& cc1, std::vector<std::pair<int, int> >& cc2){
+                std::vector<std::pair<int, int> >& cc1, std::vector<std::pair<int, int> >& cc2) {
         return cc1.size() > cc2.size();
     }
 }

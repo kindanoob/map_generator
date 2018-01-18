@@ -46,7 +46,7 @@ std::pair<Node *, Node *> Room::get_closest_nodes(Room *other_room) {
 
 
 int Room::calc_distance_to_room(Room* other_room) {
-    int min_dist = MAP_WIDTH_IN_TILES * MAP_WIDTH_IN_TILES + MAP_HEIGHT_IN_TILES * MAP_HEIGHT_IN_TILES;
+    int min_dist = kMapWidthInTiles * kMapWidthInTiles + kMapHeightInTiles * kMapHeightInTiles;
     for (auto& node: boundary_nodes()) {
         for (auto& other_node: other_room->boundary_nodes()) {
             int dx = node->x_ - other_node->x_;

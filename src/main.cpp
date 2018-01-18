@@ -7,13 +7,13 @@
 
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Map generator");
+    sf::RenderWindow window(sf::VideoMode(kScreenWidth, kScreenHeight), "Map generator");
     window.setVerticalSyncEnabled(true);
     window.setKeyRepeatEnabled(false);
 
-    Game_map *game_map = new Game_map(MAP_WIDTH_IN_TILES, MAP_HEIGHT_IN_TILES,
-                                      MAP_FILL_PERCENTAGE, TILE_WIDTH_IN_PIXELS,
-                                      TILE_HEIGHT_IN_PIXELS, window);
+    Game_map *game_map = new Game_map(kMapWidthInTiles, kMapHeightInTiles,
+                                      kMapFillPercentage, kTileWidthInPixels,
+                                      kTileHeightInPixels, window);
 
 
 
@@ -81,7 +81,7 @@ int main() {
         window.clear(sf::Color(255, 255, 255));
 
 
-        game_map->draw_map(window, OFFSET_X, OFFSET_Y);
+        game_map->draw_map(window, kOffsetX, kOffsetY);
         window.draw(controls_rect_shape);
         window.draw(controls_text);
         window.draw(generate_button_rect_shape);

@@ -1,30 +1,33 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef CONFIG_H_
+#define CONFIG_H_
 
 
 #include <vector>
 #include <cmath>
 
-const int SCREEN_WIDTH = 1200;
-const int SCREEN_HEIGHT = 800;
-const int MAP_WIDTH_IN_TILES = 100;
-const int MAP_HEIGHT_IN_TILES = 100;
-const int TILE_WIDTH_IN_PIXELS = 5;
-const int TILE_HEIGHT_IN_PIXELS = 5;
-const int MAP_WIDTH_IN_PIXELS = TILE_WIDTH_IN_PIXELS * MAP_WIDTH_IN_TILES;
-const int MAP_HEIGHT_IN_PIXELS = TILE_WIDTH_IN_PIXELS *  MAP_HEIGHT_IN_TILES;
-const int OFFSET_X = (SCREEN_WIDTH - MAP_WIDTH_IN_PIXELS) / 2;
-const int OFFSET_Y = (SCREEN_HEIGHT - MAP_HEIGHT_IN_PIXELS) / 2;
-const int NUM_ITERATIONS_SMOOTH = 10;
-const double SQRT_2 = sqrt(2);
-const double EPSILON = 0.000001;
-const int MAP_FILL_PERCENTAGE = 48;//44;
-//const int NEIGHBOR_CUTOFF = 4;
+const int kScreenWidth = 1200;
+const int kScreenHeight = 800;
+const int kMapWidthInTiles = 100;
+const int kMapHeightInTiles = 100;
+const int kTileWidthInPixels = 5;
+const int kTileHeightInPixels = 5;
+const int kMapWidthInPixels = kTileWidthInPixels * kMapWidthInTiles;
+const int kMapHeightInPixels = kTileWidthInPixels *  kMapHeightInTiles;
+const int kOffsetX = (kScreenWidth - kMapWidthInPixels) / 2;
+const int kOffsetY = (kScreenHeight - kMapHeightInPixels) / 2;
+const int kNumIterationsSmooth = 10;
+const double kSqrt2 = sqrt(2);
+const double kEpsilon = 0.000001;
+const int kMapFillPercentage = 48;
 
-const std::vector<int> BIRTH_VALUES = {5,6,7,8};//if dead cell has number of neighbors that
-                    //belongs to this set of values, it becomes alive, o/w it stays dead
-const std::vector<int> SURVIVE_VALUES = {4,5,6,7,8};//if alive cell has number of neighbors that
-                    //belongs to this set, it stays alive, o/w it becomes dead
+
+//if dead cell has number of neighbors that
+//belongs to this set of values, it becomes alive, o/w it stays dead
+const std::vector<int> BIRTH_VALUES = {5,6,7,8};
+
+//if alive cell has number of neighbors that
+//belongs to this set, it stays alive, o/w it becomes dead
+const std::vector<int> SURVIVE_VALUES = {4,5,6,7,8};
 
 ///Examples of cellular automata:
 //---https://en.wikipedia.org/wiki/Life-like_cellular_automaton
@@ -53,4 +56,4 @@ const std::vector<int> SURVIVE_VALUES = {4,5,6,7,8};//if alive cell has number o
 //---B123/S
 //---B13/S
 
-#endif // CONFIG_H
+#endif // CONFIG_H_
