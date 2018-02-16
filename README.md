@@ -1,4 +1,6 @@
 # map_generator
+![Procedural map generator](resources/map_generator.png?raw=true "Procedural map generator")
+
 Procedural map generator implemented in C++ using SFML
 
 Requirements: 1) C++11, 2) SFML 2.3.2
