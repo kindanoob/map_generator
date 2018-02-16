@@ -19,9 +19,10 @@ int main() {
 
 
     sf::Font ubuntu_font;
-    if (!ubuntu_font.loadFromFile("resources/ubuntu.ttf")) {
+    if (!ubuntu_font.loadFromFile("resources/fonts/ubuntu.ttf")) {
         std::cout << "Error. Font failed to load." << std::endl;
     }
+
 
     sf::RectangleShape controls_rect_shape;
     controls_rect_shape.setSize(sf::Vector2f(125, 100));
