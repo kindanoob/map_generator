@@ -6,7 +6,7 @@
 
 
 namespace Rng {
-    int int_in_range(int low, int high);
+    int IntInRange(int low, int high);
 }
 
 #endif // RNG_H_

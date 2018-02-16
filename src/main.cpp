@@ -11,7 +11,7 @@ int main() {
     window.setVerticalSyncEnabled(true);
     window.setKeyRepeatEnabled(false);
 
-    Game_map *game_map = new Game_map(kMapWidthInTiles, kMapHeightInTiles,
+    GameMap *game_map = new GameMap(kMapWidthInTiles, kMapHeightInTiles,
                                       kMapFillPercentage, kTileWidthInPixels,
                                       kTileHeightInPixels, window);
 
@@ -73,7 +73,7 @@ int main() {
             }
             if (e.type == sf::Event::KeyPressed) {
                 if (e.key.code == sf::Keyboard::G) {
-                    game_map->process_map(window);
+                    game_map->ProcessMap(window);
                 }
             }            
         }
@@ -81,7 +81,7 @@ int main() {
         window.clear(sf::Color(255, 255, 255));
 
 
-        game_map->draw_map(window, kOffsetX, kOffsetY);
+        game_map->DrawMap(window, kOffsetX, kOffsetY);
         window.draw(controls_rect_shape);
         window.draw(controls_text);
         window.draw(generate_button_rect_shape);
