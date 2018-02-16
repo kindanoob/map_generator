@@ -5,20 +5,20 @@
 #include <vector>
 #include <cmath>
 
-const int kScreenWidth = 1200;
-const int kScreenHeight = 800;
-const int kMapWidthInTiles = 100;
-const int kMapHeightInTiles = 100;
-const int kTileWidthInPixels = 5;
-const int kTileHeightInPixels = 5;
-const int kMapWidthInPixels = kTileWidthInPixels * kMapWidthInTiles;
-const int kMapHeightInPixels = kTileWidthInPixels *  kMapHeightInTiles;
-const int kOffsetX = (kScreenWidth - kMapWidthInPixels) / 2;
-const int kOffsetY = (kScreenHeight - kMapHeightInPixels) / 2;
-const int kNumIterationsSmooth = 10;
-const double kSqrt2 = sqrt(2);
-const double kEpsilon = 0.000001;
-const int kMapFillPercentage = 48;
+constexpr int kScreenWidth = 1200;
+constexpr int kScreenHeight = 800;
+constexpr int kMapWidthInTiles = 100;
+constexpr int kMapHeightInTiles = 100;
+constexpr int kTileWidthInPixels = 5;
+constexpr int kTileHeightInPixels = 5;
+constexpr int kMapWidthInPixels = kTileWidthInPixels * kMapWidthInTiles;
+constexpr int kMapHeightInPixels = kTileWidthInPixels *  kMapHeightInTiles;
+constexpr int kOffsetX = (kScreenWidth - kMapWidthInPixels) / 2;
+constexpr int kOffsetY = (kScreenHeight - kMapHeightInPixels) / 2;
+constexpr int kNumIterationsSmooth = 10;
+constexpr double kSqrt2 = sqrt(2);
+constexpr double kEpsilon = 0.000001;
+constexpr int kMapFillPercentage = 48;
 
 
 //if dead cell has number of neighbors that
