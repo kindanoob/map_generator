@@ -29,9 +29,9 @@ void GameMap::Reset() {
 
 void GameMap:: PrintMapToConsole() {
     std::cout << std::endl;
-    for (size_t i = 0; i < char_map_.size(); ++i) {
+    for (int i = 0; i < char_map_.size(); ++i) {
         std::cout << " ";
-        for (size_t j = 0; j < char_map_[0].size(); ++j) {
+        for (int j = 0; j < char_map_[0].size(); ++j) {
             std::cout << char_map_[i][j];
         }
         std::cout << std::endl;
@@ -41,8 +41,8 @@ void GameMap:: PrintMapToConsole() {
 
 
 void GameMap::RandomizeMap(int map_fill_percent) {
-    for (size_t i = 0; i < char_map_.size(); ++i) {
-        for (size_t j = 0; j < char_map_[0].size(); ++j) {
+    for (int i = 0; i < char_map_.size(); ++i) {
+        for (int j = 0; j < char_map_[0].size(); ++j) {
             if ((i == 0) || (j == 0) || (i == char_map_.size() - 1) || (j == char_map_[0].size() - 1)) {
                 char_map_[i][j] = '1';
                 continue;
@@ -80,8 +80,8 @@ int GameMap::CountNeighborWalls(int i, int j) {
 
 void GameMap::SmoothMap(int num_iterations) {
     for (int k = 0; k < num_iterations; ++k) {
-        for (size_t i = 1; i < char_map_.size() - 1; ++i) {
-            for (size_t j = 1; j < char_map_[0].size() - 1; ++j) {
+        for (int i = 1; i < char_map_.size() - 1; ++i) {
+            for (int j = 1; j < char_map_[0].size() - 1; ++j) {
                 char curr = char_map_[i][j];
                 int cnt = CountNeighborWalls(i, j);
                 if (curr == '0') {//if the cell is dead
@@ -109,8 +109,7 @@ void GameMap::DrawMap(sf::RenderWindow& window, double offset_x, double offset_y
             rect.setPosition(sf::Vector2f(offset_x + j * tile_width_in_pixels_, offset_y + i * tile_width_in_pixels_));
             if (char_map_[i][j] == '1') {
                 rect.setFillColor(sf::Color(0, 0, 0));
-            }
-            else {
+            } else {
                 rect.setFillColor(sf::Color(255, 255, 255));
             }
             window.draw(rect);
@@ -191,7 +190,7 @@ void GameMap::RemoveConnectedComponents(std::vector<Room *>& rooms) {
         GroupTilesIntoConnectedComponenets(rooms);
     std::sort(connected_components.begin(), connected_components.end(),
               Util::CmpTileConnectedComponentsBySizeDescending);
-    for (size_t i = 1; i < connected_components.size(); ++i) {
+    for (int i = 1; i < connected_components.size(); ++i) {
         for (auto& n: connected_components[i]) {
             char_map_[n.first][n.second] = '1';
         }
@@ -256,7 +255,7 @@ std::vector<std::vector<Room *> > GameMap::GroupRoomsIntoConnectedComponents(
                                 std::vector<Room *>& rooms) {
     std::vector<std::vector<Room *> > res;
     std::vector<Room *> visited;
-    for (size_t i = 0; i < rooms.size(); ++i) {
+    for (int i = 0; i < rooms.size(); ++i) {
         std::vector<Room *> connected_component;
         DfsRoom(rooms[i], rooms, visited, connected_component);
         if (!connected_component.empty()) {
@@ -283,7 +282,7 @@ void GameMap::CreatePassageways() {
         GroupRoomsIntoConnectedComponents(room_vector_);
     double offset_x = kOffsetX;
     double offset_y = kOffsetY;
-    for (size_t i = 0; i < room_vector_.size(); ++i) {
+    for (int i = 0; i < room_vector_.size(); ++i) {
         for (auto& r: room_vector_[i]->connected_rooms_) {
             if (room_vector_[i] == r) {
                 continue;
@@ -345,15 +344,17 @@ void GameMap::CreatePassageways() {
 
 void GameMap::ConnectClosestRooms() {
     if (room_vector_.empty()) {
-        std::cout << "Error. Cannot connect rooms, because room list is empty." << std::endl;
+        std::cout << "In ConnectClosestRooms() function. ";
+        std::cout << "Cannot connect rooms, because room list is empty." << std::endl;
         return;
     }
     if (room_vector_.size() == 1) {
-        std::cout << "Error. Cannot connect rooms, because room list contains "
+        std::cout << "In ConnectClosestRooms() function. ";
+        std::cout << " Cannot connect rooms, because room list contains "
         << "only one room" << std::endl;
         return;
     }
-    for (size_t i = 0; i < room_vector_.size(); ++i) {
+    for (int i = 0; i < room_vector_.size(); ++i) {
         room_vector_[i]->ConnectRoom(room_vector_[i]->GetClosestRoom(room_vector_));
     }
 }
@@ -388,7 +389,7 @@ void GameMap::ProcessMap(sf::RenderWindow& window) {
 
 
 void GameMap::DrawRoomConnections(sf::RenderWindow& window) {
-    for (size_t i = 0; i < room_vector_.size(); ++i) {
+    for (int i = 0; i < room_vector_.size(); ++i) {
         Room *curr = room_vector_[i];
         for (auto& r: curr->connected_rooms_) {
             if (curr == r) {

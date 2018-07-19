@@ -28,7 +28,7 @@ void Room::CreateBoundaryNodes(GameMap *game_map) {
 std::pair<Node *, Node *> Room::GetClosestNodes(Room *other_room) {
     Node *this_node = nullptr;
     Node *other_node = nullptr;
-    int min_dist = 2000000000;
+    double min_dist = std::numeric_limits<double>::max();
     for (auto& curr_node: BoundaryNodes()) {
         for (auto& curr_other_node: other_room->BoundaryNodes()) {
             double curr_dist = Util::DistSquaredFromPointToPoint(curr_node->x_, curr_node->y_,
@@ -40,8 +40,7 @@ std::pair<Node *, Node *> Room::GetClosestNodes(Room *other_room) {
             }
         }
     }
-    std::pair<Node *, Node *> res(this_node, other_node);
-    return res;
+    return {this_node, other_node};
 }
 
 

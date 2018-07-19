@@ -28,7 +28,6 @@ public:
     int CountNeighborWalls(int i, int j);
     void SmoothMap(int num_iterations);
     void DrawMap(sf::RenderWindow& window, double offset_x, double offset_y);
-    void RemoveRegion(int i, int j);
     int Width();
     int Height();
     std::vector<Room *> GenerateRooms();
