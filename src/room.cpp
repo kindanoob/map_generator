@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 #include "room.h"
 #include "game_map.h"
 #include "config.h"
